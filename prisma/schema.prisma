@@ -1,0 +1,112 @@
+// Prisma schema aligned with Postgres tables from scripts and types in lib/db.ts
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique @db.VarChar(255)
+  password_hash String    @db.VarChar(255)
+  first_name    String    @db.VarChar(100)
+  last_name     String    @db.VarChar(100)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @default(now()) @updatedAt
+
+  // Relations
+  cart_items CartItem[]
+  orders     Order[]
+
+  @@map("users")
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(100)
+  description String?   @db.Text
+  image_url   String?   @db.VarChar(500)
+  created_at  DateTime  @default(now())
+
+  // Relations
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id             Int       @id @default(autoincrement())
+  name           String    @db.VarChar(255)
+  description    String?   @db.Text
+  price          Decimal   @db.Decimal(10, 2)
+  original_price Decimal?  @db.Decimal(10, 2)
+  category_id    Int?
+  image_url      String?   @db.VarChar(500)
+  stock_quantity Int       @default(0)
+  is_active      Boolean   @default(true)
+  rating         Decimal   @default("0") @db.Decimal(3, 2)
+  review_count   Int       @default(0)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @default(now()) @updatedAt
+
+  // Relations
+  category    Category? @relation(fields: [category_id], references: [id])
+  cart_items  CartItem[]
+  order_items OrderItem[]
+
+  @@index([category_id], map: "idx_products_category")
+  @@index([price], map: "idx_products_price")
+  @@map("products")
+}
+
+model CartItem {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  product_id  Int
+  quantity    Int      @default(1)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
+
+  // Relations
+  user    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, product_id])
+  @@index([user_id], map: "idx_cart_user")
+  @@map("cart_items")
+}
+
+model Order {
+  id               Int       @id @default(autoincrement())
+  user_id          Int?
+  total_amount     Decimal   @db.Decimal(10, 2)
+  status           String    @default("pending") @db.VarChar(50)
+  shipping_address String?
+  created_at       DateTime  @default(now())
+
+  // Relations
+  user        User?       @relation(fields: [user_id], references: [id])
+  order_items OrderItem[]
+
+  @@index([user_id], map: "idx_orders_user")
+  @@map("orders")
+}
+
+model OrderItem {
+  id         Int      @id @default(autoincrement())
+  order_id   Int
+  product_id Int
+  quantity   Int
+  price      Decimal  @db.Decimal(10, 2)
+  created_at DateTime @default(now())
+
+  // Relations
+  order   Order   @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [product_id], references: [id])
+
+  @@map("order_items")
+}
