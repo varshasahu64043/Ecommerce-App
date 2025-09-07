@@ -66,7 +66,7 @@ export function Header() {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="hidden md:flex items-center space-x-2">
+                  <Button type="button" variant="ghost" size="sm" className="hidden md:flex items-center space-x-2">
                     <User className="h-4 w-4" />
                     <span className="text-sm">Hi, {user.firstName}</span>
                   </Button>
@@ -110,7 +110,7 @@ export function Header() {
             </Link>
 
             {/* Mobile Menu Toggle */}
-            <Button variant="ghost" size="sm" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            <Button type="button" variant="ghost" size="sm" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
@@ -138,12 +138,12 @@ export function Header() {
             {user ? (
               <div className="space-y-2">
                 <div className="px-4 py-2 text-sm font-medium">Hi, {user.firstName}</div>
-                <Link href="/profile" className="block px-4 py-2 text-sm hover:bg-gray-50">
+                {/* <Link href="/profile" className="block px-4 py-2 text-sm hover:bg-gray-50">
                   My Profile
                 </Link>
                 <Link href="/orders" className="block px-4 py-2 text-sm hover:bg-gray-50">
                   My Orders
-                </Link>
+                </Link> */}
                 <button
                   onClick={logout}
                   className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
